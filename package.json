@@ -2,17 +2,27 @@
   "name": "next-news",
   "license": "MIT",
   "dependencies": {
-    "firebase": "^3.7.3",
+    "access-watch": "git://github.com/access-watch/access-watch.git#middleware2",
+    "express": "^4.16.2",
+    "express-ws": "^3.0.0",
+    "firebase": "^3.9.0",
     "ms": "^1.0.0",
     "next": "beta",
     "nprogress": "^0.2.0",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
-    "url-parse": "^1.1.8"
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
+    "sqreen": "^1.13.0",
+    "url-parse": "^1.2.0"
   },
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "node server"
+  },
+  "now": {
+    "env": {
+      "PORT": "80",
+      "NODE_ENV": "production"
+    }
   }
 }
