@@ -1,40 +1,40 @@
 const express = require('express');
 const expressWs = require('express-ws');
+const onFinished = require('on-finished');
 
 const next = require('next');
 
 const config = { data: { protocol: 'memory'} };
 const accessWatch = require('access-watch')(config);
 const { createLog } = accessWatch.util;
+const { rules } = accessWatch.databases;
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-function expressAccessWatchBlocker (server) {
-  const { rules } = accessWatch.databases;
-  server.use((req, res, next) => {
-    const log = createLog(req, res);
-    if (rules.matchLog(log)) {
-      res.status(403);
-      res.send('Blocked.')
-    }
-    next();
-  });
-}
-
-function expressAccessWatchLogger (server) {
+function expressAccessWatch (server) {
   const nativeInput = {
     name: 'Express Middleware',
     start: ({success, error, status}) => {
       server.use((req, res, next) => {
-        try {
-          const log = createLog(req, res);
-          success(log);
-        } catch (err) {
-          error(err);
+        // Logging
+        onFinished(res, () => {
+          try {
+            success(createLog(req, res));
+          } catch (err) {
+            error(err);
+          }
+        })
+
+        // Blocking
+        if (rules.matchLog(createLog(req, res))) {
+          res.status(403);
+          res.send('Blocked.')
+          return
         }
-        next();
+
+        next()
       })
       status(null, `Listening.`);
     },
@@ -58,19 +58,15 @@ app
   expressWs(server);
 
   // Serve Access Watch internal API and Dashboard
-  const accessWatchPath = '/_access_watch';
+  server.use(
+    '/_access_watch',
+    accessWatch.apps.api,
+    accessWatch.apps.dashboard,
+    accessWatch.apps.websocket
+  );
 
-  // Mount Access Watch apps
-  const { api, dashboard, websocket } = accessWatch.apps;
-  server.use(accessWatchPath, api);
-  server.use(accessWatchPath, dashboard);
-  server.use(accessWatchPath, websocket);
-
-  // Setup middleware to enforce blocking
-  expressAccessWatchBlocker(server)
-
-  // Setup middleware to log requests
-  expressAccessWatchLogger(server);
+  // Setup logging/blocking middleware
+  expressAccessWatch(server)
 
   server.get('*', (req, res) => {
     return handle(req, res);
