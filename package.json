@@ -2,7 +2,7 @@
   "name": "next-news",
   "license": "MIT",
   "dependencies": {
-    "access-watch": "git://github.com/access-watch/access-watch.git#middleware2",
+    "access-watch": "0.8.1",
     "express": "^4.16.2",
     "express-ws": "^3.0.0",
     "firebase": "^3.9.0",
@@ -12,7 +12,6 @@
     "on-finished": "^2.3.0",
     "react": "^15.6.2",
     "react-dom": "^15.6.2",
-    "sqreen": "^1.13.0",
     "url-parse": "^1.2.0"
   },
   "scripts": {
