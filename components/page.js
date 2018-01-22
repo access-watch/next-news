@@ -1,9 +1,11 @@
 import Header from './header'
+import Banner from './banner'
 import Meta from './meta'
 
 export default ({ children }) => (
   <div className="main">
     <Meta />
+    <Banner />
     <Header />
 
     <div className="page">
